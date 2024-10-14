@@ -1,0 +1,135 @@
+#popin_showCards {
+  background-color: #fefdfd;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px black;
+  position: relative;
+}
+#popin_showCards .popin_closeicon {
+  background-color: #573f3f;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -18px;
+  right: -18px;
+  font-size: 90%;
+  color: white !important;
+  border: 1px solid #573f3f;
+  z-index: 2;
+}
+#popin_showCards .popin_closeicon:hover {
+  text-decoration: none;
+  color: #ccc !important;
+  transform: scale(1.1);
+}
+#popin_showCards .popin_closeicon i {
+  margin-top: -2px;
+}
+#popin_showCards h2 {
+  font-family: "roboto";
+  text-align: center;
+  font-size: 25px;
+  margin: 0px;
+  background: #926a6a;
+  border-radius: 8px 8px 0px 0px;
+  padding: 11px 15px 3px;
+  border-bottom: 1px solid #573f3f;
+}
+
+#popin_showCards {
+  width: 750px;
+  min-height: 51px;
+  background-color: #ffffff;
+  border-top: 1px solid #573f3f;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  text-align: right;
+}
+#popin_showCards #forestShuffle-choose-card {
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  gap: 10px;
+}
+#popin_showCards #forestShuffle-choose-card .card {
+  position: relative;
+  width: var(--card-in-hand-width);
+  height: calc(var(--card-in-hand-width) / 0.644);
+}
+#popin_showCards #forestShuffle-choose-card .card::after {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  left: 50%;
+  background: rgba(209, 209, 209, 0.7450980392);
+  z-index: 10;
+  font: normal normal normal 14px FontAwesome;
+  font-size: calc(var(--card-width) / 2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 7px;
+}
+#popin_showCards #forestShuffle-choose-card .card.trash::after {
+  content: "\f1f8";
+}
+#popin_showCards #forestShuffle-choose-card .card.keep::after {
+  content: "\f063";
+}
+#popin_showCards #forestShuffle-choose-card .card.clearing::after {
+  content: "\f062";
+}
+#popin_showCards #forestShuffle-choose-card .card.left::after {
+  content: "\f060";
+}
+#popin_showCards #forestShuffle-choose-card .card.right::after {
+  content: "\f061";
+}
+#popin_showCards #forestShuffle-choose-card:hover .card, #popin_showCards #forestShuffle-choose-card:hover .card.selected {
+  scale: 1;
+}
+#popin_showCards #forestShuffle-choose-card:hover .card.selectable:hover {
+  scale: 1.05;
+}
+#popin_showCards #forestShuffle-choose-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  -moz-column-gap: 3%;
+       column-gap: 3%;
+  margin-right: 2%;
+}
+#popin_showCards .tinyHint {
+  font-family: "roboto";
+  text-align: center;
+  font-size: 25px;
+  margin: 0px;
+}
+#popin_showCards .tinyHint::after {
+  font-family: FontAwesome;
+  color: red;
+}
+#popin_showCards .tinyHint.validated::after {
+  color: green;
+}
+#popin_showCards .tinyHint.trash::after {
+  content: "\f1f8";
+}
+#popin_showCards .tinyHint.keep::after {
+  content: "\f063";
+}
+#popin_showCards .tinyHint.clearing::after {
+  content: "\f062";
+}
+#popin_showCards .tinyHint.left::after {
+  content: "\f060";
+}
+#popin_showCards .tinyHint.right::after {
+  content: "\f061";
+}

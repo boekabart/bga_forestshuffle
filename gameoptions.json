@@ -1,0 +1,82 @@
+{
+  "100": {
+    "name": "Score visible",
+    "values": [
+      {
+        "name": "Yes",
+        "description": "Play with live scoring",
+        "tmdisplay": "Visible score"
+      },
+      {
+        "name": "No",
+        "description": "Play without live scoring",
+        "tmdisplay": "Hidden score"
+      }
+    ],
+    "default": 0
+  },
+  "102": {
+    "name": "Expansion Alpine",
+    "values": [
+      {
+        "name": "Yes",
+        "description": "Play with Alpine expansion",
+        "tmdisplay": "Alpine cards"
+      },
+      {
+        "name": "No",
+        "description": "Play without Alpine expansion",
+        "tmdisplay": "No Alpine cards"
+      }
+    ],
+    "default": 1,
+    "displaycondition": [
+      {
+        "type": "otheroptionisnot",
+        "id": 104,
+        "value": 0
+      }
+    ],
+    "notdisplayedmessage": "You can't combine Alpine with Woodland Edge expansion at this time"
+  },
+  "104": {
+    "name": "Expansion Woodland Edge",
+    "values": [
+      {
+        "name": "Yes",
+        "description": "Play with Woodland Edge expansion",
+        "tmdisplay": "Woodland Edge cards"
+      },
+      {
+        "name": "No",
+        "description": "Play without Woodland Edge expansion",
+        "tmdisplay": "No Woodland Edge cards"
+      }
+    ],
+    "default": 1,
+    "displaycondition": [
+      {
+        "type": "otheroptionisnot",
+        "id": 102,
+        "value": 0
+      }
+    ],
+    "notdisplayedmessage": "You can't combine Woodland Edge with Alpine expansion at this time"
+  },
+  "103": {
+    "name": "Draft mode",
+    "values": [
+      {
+        "name": "No",
+        "description": "Basic setup",
+        "tmdisplay": "No Draft"
+      },
+      {
+        "name": "Yes",
+        "description": "Play draft during setup",
+        "tmdisplay": "Draft"
+      }
+    ],
+    "default": 0
+  }
+}

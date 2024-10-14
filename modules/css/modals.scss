@@ -1,0 +1,152 @@
+@use "variables.scss" as var;
+@use "sass:color";
+
+$dark: color.adjust(var.$primary-color, $lightness: -20%);
+$light: color.adjust(var.$primary-color, $lightness: +50%);
+
+#popin_showCards {
+  background-color: $light;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px black;
+  position: relative;
+
+  .popin_closeicon {
+    background-color: $dark;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -18px;
+    right: -18px;
+    font-size: 90%;
+    color: white !important;
+    border: 1px solid $dark;
+    z-index: 2;
+
+    &:hover {
+      text-decoration: none;
+      color: #ccc !important;
+      transform: scale(1.1);
+    }
+
+    i {
+      margin-top: -2px;
+    }
+  }
+
+  h2 {
+    font-family: var.$main-font;
+    text-align: center;
+    font-size: 25px;
+    margin: 0px;
+    background: var.$primary-color;
+    border-radius: 8px 8px 0px 0px;
+    padding: 11px 15px 3px;
+    border-bottom: 1px solid $dark;
+  }
+}
+
+#popin_showCards {
+  width: 750px;
+  min-height: 51px;
+  background-color: var.$secondary-color;
+  border-top: 1px solid $dark;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  text-align: right;
+
+  #forestShuffle-choose-card {
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 10px;
+
+    & .card {
+      position: relative;
+      width: var(--card-in-hand-width);
+      height: calc(var(--card-in-hand-width) / var.$card-ratio);
+      &::after {
+        position: absolute;
+        width: 50%;
+        height: 50%;
+        top: 50%;
+        left: 50%;
+        background: #d1d1d1be;
+        z-index: 10;
+        font: normal normal normal 14px FontAwesome;
+        font-size: calc(var(--card-width) / 2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 7px;
+      }
+      &.trash::after {
+        content: "\f1f8";
+      }
+      &.keep::after {
+        content: "\f063";
+      }
+      &.clearing::after {
+        content: "\f062";
+      }
+      &.left::after {
+        content: "\f060";
+      }
+      &.right::after {
+        content: "\f061";
+      }
+    }
+
+    &:hover .card,
+    &:hover .card.selected {
+      scale: 1;
+    }
+
+    &:hover .card.selectable:hover {
+      scale: 1.05;
+    }
+  }
+
+  #forestShuffle-choose-card-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    column-gap: 3%;
+    margin-right: 2%;
+  }
+
+  .tinyHint {
+    font-family: var.$main-font;
+    text-align: center;
+    font-size: 25px;
+    margin: 0px;
+    &::after {
+      font-family: FontAwesome;
+      color: red;
+    }
+    &.validated::after {
+      color: green;
+    }
+
+    &.trash::after {
+      content: "\f1f8";
+    }
+    &.keep::after {
+      content: "\f063";
+    }
+    &.clearing::after {
+      content: "\f062";
+    }
+    &.left::after {
+      content: "\f060";
+    }
+    &.right::after {
+      content: "\f061";
+    }
+  }
+}

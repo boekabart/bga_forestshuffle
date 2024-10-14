@@ -1,0 +1,1674 @@
+/**
+ *------
+ * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
+ * ForestShuffle implementation : © Emmanuel Albisser <emmanuel.albisser@gmail.com>
+ *
+ * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
+ * See http://en.boardgamearena.com/#!doc/Studio for more information.
+ * -----
+ *
+ * ForestShuffle.css
+ *
+ * ForestShuffle stylesheet
+ *
+ */
+
+/*
+    This is the CSS stylesheet of your game User Interface.
+    
+    Styles defined on this file will be applied to the HTML elements you define in your
+    HTML template (ForestShuffle_ForestShuffle.tpl), and to HTML elements you create dynamically
+    (in ForestShuffle.js).
+    
+    Usually, you are using CSS to:
+    
+    1°) define the overall layout of your game
+        (ex: place the board on the top left, place player's hand beside, place the deck on the right, ...).
+
+    2°) create your CSS-sprites:
+        All images of your games should be gathered into a small number of image files. Then, using
+        background-image and background-position CSS properties, you create HTML blocks that can 
+        display these images correctly (see example below).
+    
+    3°) ... anything else:
+        It is really easy to add and remove CSS classes dynamically from your Javascript with
+        dojo.addClass and dojo.removeClass. It is also easy to check if an element has a class
+        (dojo.hasClass) or to get all elements with a specific class (dojo.query). This is why,
+        very often, using CSS classes for the logic of your user interface allow you to do complex
+        thing easily.
+        
+        
+     Note: on the production platform, this file will be compressed and comments will be removed.
+           Consequently, don't hesitate to put as many comments as necessary.
+*/
+@use "sass:math";
+@use "sass:color";
+@use "modals.scss";
+
+@mixin getBackgroundPosition($x, $maxx, $maxy) {
+  background-position-x: math.div($x % $maxx * 100%, ($maxx - 1));
+  background-position-y: math.div(
+    math.floor(math.div($x, $maxx)) * 100%,
+    ($maxy - 1)
+  );
+}
+
+@mixin getBackgroundPositionSuperVCard($x, $maxx, $maxy, $offsetY) {
+  background-position-x: math.div($x % $maxx * 100%, ($maxx - 1));
+  background-position-y: math.div(
+    (math.floor(math.div($x, $maxx)) * 2 + $offsetY) * 100%,
+    ($maxy * 2) - 1
+  );
+}
+
+@mixin getBackgroundPositionSuperHCard($x, $maxx, $maxy, $offsetX) {
+  background-position-x: math.div(
+    ((calc($x * 2) % ($maxx * 2)) + $offsetX) * 100%,
+    ($maxx * 2 - 1)
+  );
+  background-position-y: math.div(
+    math.floor(math.div($x, $maxx)) * 100%,
+    ($maxy - 1)
+  );
+}
+
+$card-ratio: 0.644; //calc(661 / 1028);
+$board-ratio: calc(2000 / 381);
+$main-font: "roboto";
+
+$trees_start: 1;
+$wCards_start: 67;
+$hCards_start: 70;
+$vCards_start: 114;
+$total_cards: 161;
+
+%card-on-board {
+  width: calc(min(var(--card-width), var(--max-card-width)));
+  height: calc(min(var(--card-width), var(--max-card-width)) / $card-ratio);
+}
+
+%zoomable-card {
+  width: var(--card-in-hand-width);
+  height: calc(var(--card-in-hand-width) / $card-ratio);
+}
+
+%cardsPinned {
+  display: flex;
+  justify-content: flex-start;
+  background-color: rgba(129, 129, 129, 0.4);
+  flex-wrap: wrap;
+  position: relative;
+  margin-top: 10px;
+}
+
+:root {
+  --card-width: 120px;
+  --max-card-width: 250px;
+  --card-in-hand-width: 120px;
+  --card-on-table-width: 120px;
+  --superCard: 240px;
+}
+
+/* Note: you must not use any @import directive */
+
+[id^="player_name"] .card,
+#FOS_caution {
+  -webkit-transition: max-height 0.5s, padding 0.5s;
+  -moz-transition: max-height 0.5s, padding 0.5s;
+  -ms-transition: max-height 0.5s, padding 0.5s;
+  -o-transition: max-height 0.5s, padding 0.5s;
+  transition: max-height 0.5s, padding 0.5s;
+  &:empty {
+    max-height: 0;
+    padding: 0;
+  }
+
+  &:not(:empty)::before {
+    content: "\2716";
+    height: 20px;
+    width: 20px;
+    position: absolute;
+    right: 10px;
+  }
+  max-height: 30px;
+  background-color: red;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+#board {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  // border-radius: 10px;
+  width: calc(var(--card-width) * 11);
+  // height: calc(var(--card-width)*10 / $board-ratio);
+  max-width: calc(var(--max-card-width) * 11);
+  // max-height: calc(var(--max-card-width)*10 / $board-ratio);
+  // left: calc(var(--card-width) /2);
+  background-image: url("img/board.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+
+  & > .deckinfo {
+    top: 0%;
+    left: 48.5%;
+  }
+}
+
+#clearing {
+  display: flex;
+  padding: calc(min(var(--card-width), var(--max-card-width)) * 0.1)
+    calc(min(var(--card-width), var(--max-card-width)) * 0.2);
+  min-height: calc(
+    min(var(--card-width), var(--max-card-width)) * 10 / $board-ratio
+  );
+  flex-wrap: wrap;
+  justify-content: center;
+
+  & .card {
+    @extend %zoomable-card;
+    margin: 3px;
+    -moz-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.7);
+    -webkit-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.7);
+    -o-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.7);
+    box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.7);
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=134, Strength=30);
+    z-index: 1;
+    position: relative;
+    top: 0;
+    // transition: top ease 0.5s;
+
+    &.selectable {
+      border: blue 2px solid;
+      cursor: pointer;
+    }
+
+    &.selected {
+      border: green 2px solid;
+      top: 10px;
+    }
+  }
+}
+
+#tables {
+  display: flex;
+  flex-direction: column;
+}
+
+[id^="FOStable_"] {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: calc(var(--card-on-table-width) * 2);
+  min-height: calc(var(--card-on-table-width) / $card-ratio * 2);
+
+  transition: top 1s ease, left 1s ease;
+
+  & .treeContainer {
+    position: relative;
+    width: var(--card-on-table-width);
+    height: calc(var(--card-on-table-width) / $card-ratio - 1px);
+    margin: calc(5px + var(--card-on-table-width) / 0.6429961089 / 2)
+      calc(5px + var(--card-on-table-width) / 2);
+
+    & .card,
+    .futurePlace {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+
+      &.onTop {
+        top: calc((var(--card-on-table-width) / $card-ratio) / -1);
+        z-index: 1;
+
+        &.ready {
+          top: calc(2px + (var(--card-on-table-width) / $card-ratio) / -2);
+        }
+
+        & .deckinfo {
+          bottom: 70%;
+          right: 93%;
+        }
+      }
+
+      &.onRight {
+        left: var(--card-on-table-width);
+        z-index: 1;
+
+        &.ready {
+          left: calc(var(--card-on-table-width) / 2);
+        }
+
+        & .deckinfo {
+          bottom: 93%;
+          left: 60%;
+        }
+      }
+
+      &.onBottom {
+        top: calc((var(--card-on-table-width) / $card-ratio));
+        z-index: 1;
+
+        &.ready {
+          top: calc((var(--card-on-table-width) / $card-ratio) / 2);
+        }
+
+        & .deckinfo {
+          top: 70%;
+          right: 93%;
+        }
+      }
+
+      &.onLeft {
+        left: calc(var(--card-on-table-width) / -1);
+        z-index: 1;
+
+        &.ready {
+          left: calc(var(--card-on-table-width) / -2);
+        }
+
+        & .deckinfo {
+          bottom: 93%;
+          right: 60%;
+        }
+      }
+    }
+  }
+}
+
+.fa6-square-xmark {
+  color: red;
+  font-size: 1.2em;
+  top: 2px;
+  position: relative;
+}
+
+.fa6-square-check {
+  color: green;
+  font-size: 1.2em;
+  top: 2px;
+  position: relative;
+}
+
+.winterCards {
+  font-weight: 600;
+  text-align: center;
+  & #wCardStorage {
+    display: flex;
+    justify-content: space-around;
+    height: calc(40px / $card-ratio);
+  }
+  & .card.wCard {
+    width: 40px;
+    height: calc(40px / $card-ratio);
+    position: relative;
+  }
+}
+
+#cards {
+  display: flex;
+  justify-content: flex-start;
+  background-color: rgba(10, 10, 10, 0.6);
+  position: fixed;
+  z-index: 100;
+  bottom: 5px;
+
+  & .card {
+    @extend %zoomable-card;
+
+    margin: 5px;
+    position: relative;
+    top: 0;
+    // transition: top ease 0.5s;
+
+    &.selectable {
+      border: blue 2px solid;
+      cursor: pointer;
+    }
+
+    &.selected {
+      border: green 2px solid;
+      top: -10px;
+    }
+
+    &.selectedToPay {
+      border: red 2px solid;
+      filter: grayscale(80%);
+      transform: scale(0.95);
+    }
+  }
+}
+
+.mobile_version {
+  & #cards:not(.changed) {
+    @extend %cardsPinned;
+
+    & #pin {
+      background-color: rgba(129, 129, 129, 0.4);
+      top: 100%;
+      right: 0px;
+      display: flex;
+      border-radius: 0 0 5px 5px;
+    }
+  }
+}
+
+body:not(.mobile_version) #cards.changed {
+  @extend %cardsPinned;
+
+  & #pin {
+    background-color: rgba(129, 129, 129, 0.4);
+    top: 100%;
+    right: 0px;
+    border-radius: 0 0 5px 5px;
+  }
+}
+
+#pin {
+  position: absolute;
+  height: 30px;
+  width: 30px;
+  top: 0px;
+  right: -30px;
+  border-radius: 0 5px 5px 0;
+  background-color: rgba(10, 10, 10, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// .card.selectable,
+// .selectable > .card {
+//   // border: blue 2px solid;
+//   // cursor: pointer;
+//   &.selected {
+//     border: green 2px solid;
+//   }
+
+//   // &.selectedToPay {
+//   //     border: red 2px solid;
+//   // }
+//   // animation: borderBlink 2s step-end infinite;
+// }
+
+.card.ready.hare,
+.card.ready.toad,
+.card.available,
+.futurePlace {
+  &.selectable::before {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border-color: blue;
+    border-style: dashed;
+    border-width: 2px;
+    border-radius: 5%;
+  }
+
+  &.selected {
+    &::before {
+      position: absolute;
+      content: "";
+      width: 100%;
+      height: 100%;
+      opacity: 100%;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      border-color: green;
+      border-style: solid;
+      border-width: 2px;
+      border-radius: 5%;
+    }
+
+    &:after {
+      content: "";
+      width: calc(var(--card-on-table-width) / 5);
+      height: calc(var(--card-on-table-width) / 5);
+      background-image: url("img/arrows.png");
+      position: absolute;
+      background-size: cover;
+    }
+
+    &.onLeft {
+      &:after {
+        background-position-x: 33.33%;
+        bottom: 100%;
+      }
+    }
+
+    &.onRight {
+      &:after {
+        background-position-x: 33.33%;
+        bottom: 100%;
+        right: 0;
+      }
+    }
+
+    &.onTop {
+      &:after {
+        background-position-x: 33.33%;
+        bottom: 100%;
+        left: 40%;
+      }
+    }
+
+    &.onBottom {
+      &:after {
+        top: 100%;
+        left: 40%;
+      }
+    }
+  }
+}
+
+.futurePlace {
+  border-radius: 10px;
+
+  opacity: 50%;
+  &.selected {
+    opacity: 1;
+  }
+}
+
+#page-title .card {
+  display: none;
+}
+
+#page-title .logCards {
+  display: none;
+}
+
+.hintText {
+  & .alone {
+    display: none;
+  }
+
+  & .withOthers {
+    display: none;
+  }
+
+  &.alone {
+    & .alone {
+      display: inline-block;
+    }
+  }
+
+  &.withOthers {
+    & .withOthers {
+      display: inline-block;
+    }
+  }
+}
+
+.superCard.onTop + .hintText {
+  margin-top: 10px;
+  display: block;
+}
+
+.superCard.onBottom + .hintText {
+  margin-top: 10px;
+  display: block;
+}
+
+.superCard + .hintText {
+  margin-left: 10px;
+  display: inline-block;
+  width: var(--superCard);
+}
+
+// @keyframes borderBlink {
+//   0%, 40% {
+//     border-color: blue;
+//   }
+//   15% {
+//     border-color: transparent;
+//   }
+//   100% {
+//     border-color: blue;
+//   }
+// }
+
+.card.active {
+  border: green 2px solid;
+}
+
+%generic-deck {
+  @extend %rounded_corner;
+  @extend %card-on-board;
+  position: absolute;
+  top: calc(min(var(--card-width), var(--max-card-width)) * 0.1);
+  background-image: url("img/vCards.jpg");
+  background-size: 700%;
+  background-position: 100% 100%;
+  border-bottom: 3px solid rgba(70, 54, 39, 0.952);
+  border-right: 3px solid rgba(70, 54, 39, 0.952);
+
+  & .card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  & .flip-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+#deck {
+  @extend %generic-deck;
+  left: calc(min(var(--card-width), var(--max-card-width)) * -0.69);
+
+  & .deckinfo {
+    bottom: -6%;
+    right: 30%;
+  }
+
+  &.selectable {
+    &:before {
+      background-image: url("img/vCards.jpg");
+      background-size: 700%;
+      background-position: 100% 100%;
+      top: 0;
+      // transition: top ease 0.5s;
+      position: absolute;
+      @extend %rounded_corner;
+      content: "";
+      width: 100%;
+      height: 100%;
+      border: 1px blue solid;
+    }
+  }
+
+  &.selected {
+    &:before {
+      top: 15px;
+      border: 1px green solid;
+    }
+  }
+}
+
+#discard {
+  @extend %generic-deck;
+
+  right: calc(min(var(--card-width), var(--max-card-width)) * -0.69);
+
+  & .deckinfo {
+    bottom: -6%;
+    right: 30%;
+  }
+}
+
+// .wrapper_cave {
+//     height: calc(20px + var(--card-on-table-width)/$card-ratio);
+// }
+
+.card {
+  @extend %shadow;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+}
+
+.treeContainer {
+  @for $i from 1 to 10 {
+    &[data-id="#{$i}"] {
+      order: 50;
+    }
+  }
+
+  @for $i from 10 to 17 {
+    &[data-id="#{$i}"] {
+      order: 60;
+    }
+  }
+
+  @for $i from 17 to 23 {
+    &[data-id="#{$i}"] {
+      order: 70;
+    }
+  }
+
+  @for $i from 23 to 33 {
+    &[data-id="#{$i}"] {
+      order: 20;
+    }
+  }
+
+  @for $i from 33 to 43 {
+    &[data-id="#{$i}"] {
+      order: 10;
+    }
+  }
+
+  @for $i from 43 to 49 {
+    &[data-id="#{$i}"] {
+      order: 80;
+    }
+  }
+
+  @for $i from 49 to 56 {
+    &[data-id="#{$i}"] {
+      order: 30;
+    }
+  }
+
+  @for $i from 56 to 67 {
+    &[data-id="#{$i}"] {
+      order: 40;
+    }
+  }
+
+  @for $i from 162 through 168 {
+    &[data-id="#{$i}"] {
+      order: 45;
+    }
+  }
+
+  @for $i from 169 through 175 {
+    &[data-id="#{$i}"] {
+      order: 65;
+    }
+  }
+
+  &[data-id="0"] {
+    order: 1000;
+  }
+}
+
+.hint {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  &.onLeft,
+  &.onRight {
+    width: 50%;
+  }
+
+  &.onLeft {
+    left: 0;
+  }
+
+  &.onRight {
+    right: 0;
+  }
+
+  &.onTop,
+  &.onBottom {
+    height: 50%;
+  }
+
+  &.onTop {
+    top: 0;
+  }
+
+  &.onBottom {
+    bottom: 0;
+  }
+}
+
+.card {
+  @extend %rounded_corner;
+  width: var(--card-width);
+  height: calc(var(--card-width) / $card-ratio);
+
+  // █████                        ███
+  //░░███                        ░░░
+  // ░███████   ██████    █████  ████   ██████
+  // ░███░░███ ░░░░░███  ███░░  ░░███  ███░░███
+  // ░███ ░███  ███████ ░░█████  ░███ ░███ ░░░
+  // ░███ ░███ ███░░███  ░░░░███ ░███ ░███  ███
+  // ████████ ░░████████ ██████  █████░░██████
+  //░░░░░░░░   ░░░░░░░░ ░░░░░░  ░░░░░  ░░░░░░
+  //
+  //
+  //
+
+  //wintercards
+  @for $i from 67 through 69 {
+    &[data-id="#{$i}"] {
+      background-image: url("img/trees.jpg");
+
+      background-size: 500%;
+      background-position-y: 100%;
+      background-position-x: 100%;
+      @include getBackgroundPosition(8, 5, 5);
+    }
+  }
+
+  &.vCard {
+    background-image: url("img/vCards.jpg");
+
+    background-size: 700%;
+    background-position-y: 100%;
+    background-position-x: 100%;
+
+    $nb_icons_v: 7;
+    $nb_icons_h: 7;
+    $start: $vCards_start;
+    $end: $total_cards;
+
+    @for $i from $start through $end {
+      &[data-id="#{$i}"] {
+        @include getBackgroundPosition(($end - $i), $nb_icons_v, $nb_icons_h);
+      }
+    }
+  }
+  &.hCard {
+    background-image: url("img/hCards.jpg");
+
+    background-size: 700%;
+    background-position-y: 100%;
+    background-position-x: 100%;
+
+    $nb_icons_v: 7;
+    $nb_icons_h: 7;
+    $start: $hCards_start;
+    $end: $vCards_start;
+
+    @for $i from $start to $end {
+      &[data-id="#{$i}"] {
+        @include getBackgroundPosition(($i - $start), $nb_icons_v, $nb_icons_h);
+      }
+    }
+  }
+
+  @for $i from 1 to 10 {
+    &[data-id="#{$i}"] {
+      @include getBackgroundPosition(0, 5, 5);
+      background-image: url("img/trees.jpg");
+      background-size: 500%;
+    }
+  }
+
+  @for $i from 10 to 17 {
+    &[data-id="#{$i}"] {
+      @include getBackgroundPosition(1, 5, 5);
+      background-image: url("img/trees.jpg");
+      background-size: 500%;
+    }
+  }
+
+  @for $i from 17 to 23 {
+    &[data-id="#{$i}"] {
+      @include getBackgroundPosition(2, 5, 5);
+      background-image: url("img/trees.jpg");
+      background-size: 500%;
+    }
+  }
+
+  @for $i from 23 to 33 {
+    &[data-id="#{$i}"] {
+      @include getBackgroundPosition(3, 5, 5);
+      background-image: url("img/trees.jpg");
+      background-size: 500%;
+    }
+  }
+
+  @for $i from 33 to 43 {
+    &[data-id="#{$i}"] {
+      @include getBackgroundPosition(4, 5, 5);
+      background-image: url("img/trees.jpg");
+      background-size: 500%;
+    }
+  }
+
+  @for $i from 43 to 49 {
+    &[data-id="#{$i}"] {
+      @include getBackgroundPosition(5, 5, 5);
+      background-image: url("img/trees.jpg");
+      background-size: 500%;
+    }
+  }
+
+  @for $i from 49 to 56 {
+    &[data-id="#{$i}"] {
+      @include getBackgroundPosition(6, 5, 5);
+      background-image: url("img/trees.jpg");
+      background-size: 500%;
+    }
+  }
+
+  @for $i from 56 to 67 {
+    &[data-id="#{$i}"] {
+      @include getBackgroundPosition(7, 5, 5);
+      background-image: url("img/trees.jpg");
+      background-size: 500%;
+    }
+  }
+
+  //           ████             ███
+  //          ░░███            ░░░
+  //  ██████   ░███  ████████  ████  ████████    ██████
+  // ░░░░░███  ░███ ░░███░░███░░███ ░░███░░███  ███░░███
+  //  ███████  ░███  ░███ ░███ ░███  ░███ ░███ ░███████
+  // ███░░███  ░███  ░███ ░███ ░███  ░███ ░███ ░███░░░
+  //░░████████ █████ ░███████  █████ ████ █████░░██████
+  // ░░░░░░░░ ░░░░░  ░███░░░  ░░░░░ ░░░░ ░░░░░  ░░░░░░
+  //                 ░███
+  //                 █████
+  //                ░░░░░
+
+  @for $i from 162 through 168 {
+    &[data-id="#{$i}"] {
+      background-image: url("img/mountain.jpg");
+      background-size: 700%;
+      @include getBackgroundPosition(0, 7, 4);
+    }
+  }
+  @for $i from 169 through 175 {
+    &[data-id="#{$i}"] {
+      background-image: url("img/mountain.jpg");
+
+      background-size: 700%;
+      @include getBackgroundPosition(1, 7, 4);
+    }
+  }
+  @for $i from 176 through 200 {
+    &[data-id="#{$i}"] {
+      background-image: url("img/mountain.jpg");
+      background-size: 700%;
+      @include getBackgroundPosition($i - 174, 7, 4);
+    }
+  }
+
+  //                                       █████ ████                           █████
+  //                                      ░░███ ░░███                          ░░███
+  // █████ ███ █████  ██████   ██████   ███████  ░███   ██████   ████████    ███████   █████
+  //░░███ ░███░░███  ███░░███ ███░░███ ███░░███  ░███  ░░░░░███ ░░███░░███  ███░░███  ███░░
+  // ░███ ░███ ░███ ░███ ░███░███ ░███░███ ░███  ░███   ███████  ░███ ░███ ░███ ░███ ░░█████
+  // ░░███████████  ░███ ░███░███ ░███░███ ░███  ░███  ███░░███  ░███ ░███ ░███ ░███  ░░░░███
+  //  ░░████░████   ░░██████ ░░██████ ░░████████ █████░░████████ ████ █████░░████████ ██████
+  //   ░░░░ ░░░░     ░░░░░░   ░░░░░░   ░░░░░░░░ ░░░░░  ░░░░░░░░ ░░░░ ░░░░░  ░░░░░░░░ ░░░░░░
+  //
+  //
+  //
+
+  @for $i from 198 through 233 {
+    &[data-id="#{$i}"] {
+      background-image: url("img/woodlands.Jpg");
+      @include getBackgroundPosition($i - 198, 6, 6);
+      background-size: 600%;
+    }
+  }
+
+  &.vCard:not(.sapling) {
+    &.superCard {
+      width: var(--superCard);
+      height: calc(var(--superCard) / $card-ratio / 2 - 5px);
+      border-radius: 15px;
+
+      &.logCard {
+        width: var(--card-on-table-width);
+        height: calc(var(--card-on-table-width) / $card-ratio / 2);
+      }
+
+      &.onTop {
+        display: block;
+        border-radius: 15px 15px 0 0;
+
+        //                                                                        ███████████
+        //                                                                       ░█░░░███░░░█
+        //  █████  █████ ████ ████████   ██████  ████████      ██████  ████████  ░   ░███  ░   ██████  ████████
+        // ███░░  ░░███ ░███ ░░███░░███ ███░░███░░███░░███    ███░░███░░███░░███     ░███     ███░░███░░███░░███
+        //░░█████  ░███ ░███  ░███ ░███░███████  ░███ ░░░    ░███ ░███ ░███ ░███     ░███    ░███ ░███ ░███ ░███
+        // ░░░░███ ░███ ░███  ░███ ░███░███░░░   ░███        ░███ ░███ ░███ ░███     ░███    ░███ ░███ ░███ ░███
+        // ██████  ░░████████ ░███████ ░░██████  █████       ░░██████  ████ █████    █████   ░░██████  ░███████
+        //░░░░░░    ░░░░░░░░  ░███░░░   ░░░░░░  ░░░░░         ░░░░░░  ░░░░ ░░░░░    ░░░░░     ░░░░░░   ░███░░░
+        //                    ░███                                                                     ░███
+        //                    █████                                                                    █████
+        //                   ░░░░░                                                                    ░░░░░
+
+        $nb_icons_v: 7;
+        $nb_icons_h: 7;
+        $start: $vCards_start;
+        $end: $total_cards;
+
+        @for $i from $start through $end {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperVCard(
+              ($end - $i),
+              $nb_icons_v,
+              $nb_icons_h,
+              0
+            );
+          }
+        }
+        @for $i from 185 through 196 {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperVCard($i - 174, 7, 4, 0);
+          }
+        }
+        @for $i from 198 through 233 {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperVCard($i - 198, 6, 6, 0);
+          }
+        }
+      }
+
+      &.onBottom {
+        display: block;
+        border-radius: 0 0 15px 15px;
+
+        //                                                                        ███████████            █████     █████
+        //                                                                       ░░███░░░░░███          ░░███     ░░███
+        //  █████  █████ ████ ████████   ██████  ████████      ██████  ████████   ░███    ░███  ██████  ███████   ███████    ██████  █████████████
+        // ███░░  ░░███ ░███ ░░███░░███ ███░░███░░███░░███    ███░░███░░███░░███  ░██████████  ███░░███░░░███░   ░░░███░    ███░░███░░███░░███░░███
+        //░░█████  ░███ ░███  ░███ ░███░███████  ░███ ░░░    ░███ ░███ ░███ ░███  ░███░░░░░███░███ ░███  ░███      ░███    ░███ ░███ ░███ ░███ ░███
+        // ░░░░███ ░███ ░███  ░███ ░███░███░░░   ░███        ░███ ░███ ░███ ░███  ░███    ░███░███ ░███  ░███ ███  ░███ ███░███ ░███ ░███ ░███ ░███
+        // ██████  ░░████████ ░███████ ░░██████  █████       ░░██████  ████ █████ ███████████ ░░██████   ░░█████   ░░█████ ░░██████  █████░███ █████
+        //░░░░░░    ░░░░░░░░  ░███░░░   ░░░░░░  ░░░░░         ░░░░░░  ░░░░ ░░░░░ ░░░░░░░░░░░   ░░░░░░     ░░░░░     ░░░░░   ░░░░░░  ░░░░░ ░░░ ░░░░░
+        //                    ░███
+        //                    █████
+        //                   ░░░░░
+
+        $nb_icons_v: 7;
+        $nb_icons_h: 7;
+        $start: $vCards_start;
+        $end: $total_cards;
+
+        @for $i from $start through $end {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperVCard(
+              ($end - $i),
+              $nb_icons_v,
+              $nb_icons_h,
+              1
+            );
+          }
+        }
+        @for $i from 185 through 196 {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperVCard($i - 174, 7, 4, 1);
+          }
+        }
+
+        @for $i from 198 through 233 {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperVCard($i - 198, 6, 6, 1);
+          }
+        }
+      }
+    }
+  }
+
+  &.hCard:not(.sapling) {
+    $nb_icons_v: 7;
+    $nb_icons_h: 7;
+    $start: $hCards_start;
+    $end: $vCards_start;
+
+    &.superCard {
+      width: calc(var(--superCard) / 2);
+      height: calc(var(--superCard) / $card-ratio - 5px);
+      background-size: 1400%;
+      border-radius: 15px;
+
+      &.edge {
+        background-size: 1200%;
+      }
+      &.logCard {
+        width: calc(var(--card-on-table-width) / 2);
+        height: calc(var(--card-on-table-width) / $card-ratio);
+      }
+
+      &.onLeft {
+        border-radius: 15px 0 0 15px;
+
+        //                                                                        █████                   ██████   █████
+        //                                                                       ░░███                   ███░░███ ░░███
+        //  █████  █████ ████ ████████   ██████  ████████      ██████  ████████   ░███         ██████   ░███ ░░░  ███████
+        // ███░░  ░░███ ░███ ░░███░░███ ███░░███░░███░░███    ███░░███░░███░░███  ░███        ███░░███ ███████   ░░░███░
+        //░░█████  ░███ ░███  ░███ ░███░███████  ░███ ░░░    ░███ ░███ ░███ ░███  ░███       ░███████ ░░░███░      ░███
+        // ░░░░███ ░███ ░███  ░███ ░███░███░░░   ░███        ░███ ░███ ░███ ░███  ░███      █░███░░░    ░███       ░███ ███
+        // ██████  ░░████████ ░███████ ░░██████  █████       ░░██████  ████ █████ ███████████░░██████   █████      ░░█████
+        //░░░░░░    ░░░░░░░░  ░███░░░   ░░░░░░  ░░░░░         ░░░░░░  ░░░░ ░░░░░ ░░░░░░░░░░░  ░░░░░░   ░░░░░        ░░░░░
+        //                    ░███
+        //                    █████
+        //                   ░░░░░
+
+        @for $i from $start to $end {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperHCard(
+              ($i - $start),
+              $nb_icons_v,
+              $nb_icons_h,
+              0
+            );
+          }
+        }
+        @for $i from 176 through 184 {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperHCard($i - 174, 7, 4, 0);
+          }
+        }
+
+        &[data-id="197"] {
+          @include getBackgroundPositionSuperHCard(197 - 174, 7, 4, 0);
+        }
+
+        @for $i from 198 through 233 {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperHCard($i - 198, 6, 6, 0);
+          }
+        }
+      }
+
+      &.onRight {
+        border-radius: 0 15px 15px 0;
+
+        //                                                                        ███████████    ███           █████       █████
+        //                                                                       ░░███░░░░░███  ░░░           ░░███       ░░███
+        //  █████  █████ ████ ████████   ██████  ████████      ██████  ████████   ░███    ░███  ████   ███████ ░███████   ███████
+        // ███░░  ░░███ ░███ ░░███░░███ ███░░███░░███░░███    ███░░███░░███░░███  ░██████████  ░░███  ███░░███ ░███░░███ ░░░███░
+        //░░█████  ░███ ░███  ░███ ░███░███████  ░███ ░░░    ░███ ░███ ░███ ░███  ░███░░░░░███  ░███ ░███ ░███ ░███ ░███   ░███
+        // ░░░░███ ░███ ░███  ░███ ░███░███░░░   ░███        ░███ ░███ ░███ ░███  ░███    ░███  ░███ ░███ ░███ ░███ ░███   ░███ ███
+        // ██████  ░░████████ ░███████ ░░██████  █████       ░░██████  ████ █████ █████   █████ █████░░███████ ████ █████  ░░█████
+        //░░░░░░    ░░░░░░░░  ░███░░░   ░░░░░░  ░░░░░         ░░░░░░  ░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░░░  ░░░░░███░░░░ ░░░░░    ░░░░░
+        //                    ░███                                                                    ███ ░███
+        //                    █████                                                                  ░░██████
+        //                   ░░░░░                                                                    ░░░░░░
+
+        @for $i from $start to $end {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperHCard(
+              ($i - $start),
+              $nb_icons_v,
+              $nb_icons_h,
+              1
+            );
+          }
+        }
+        @for $i from 176 through 184 {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperHCard($i - 174, 7, 4, 1);
+          }
+        }
+        &[data-id="197"] {
+          @include getBackgroundPositionSuperHCard(197 - 174, 7, 4, 1);
+        }
+
+        @for $i from 198 through 233 {
+          &[data-id="#{$i}"] {
+            @include getBackgroundPositionSuperHCard($i - 198, 6, 6, 1);
+          }
+        }
+      }
+    }
+  }
+
+  &.back,
+  &.sapling.logCard,
+  &.sapling[data-position="sapling"] {
+    background-image: url("img/vCards.jpg");
+    background-size: 700%;
+    background-position: 100% 100%;
+  }
+}
+
+.futurePlace.selectable {
+  @extend .card;
+}
+
+.superCard {
+  width: var(--superCard);
+  height: calc(var(--superCard) / $card-ratio - 5px);
+  display: inline-block;
+}
+
+.tooltipable {
+  z-index: 4;
+}
+
+#btn-sapling.disabled {
+  display: none;
+}
+
+/*
+*    █████████  █████                          █████     ███                         ██████   ██████                    █████       ███                     
+*   ███░░░░░███░░███                          ░░███     ░░░                         ░░██████ ██████                    ░░███       ░░░                      
+*  ███     ░░░  ░███████    ██████   ██████   ███████   ████  ████████    ███████    ░███░█████░███   ██████    ██████  ░███████   ████  ████████    ██████ 
+* ░███          ░███░░███  ███░░███ ░░░░░███ ░░░███░   ░░███ ░░███░░███  ███░░███    ░███░░███ ░███  ░░░░░███  ███░░███ ░███░░███ ░░███ ░░███░░███  ███░░███
+* ░███          ░███ ░███ ░███████   ███████   ░███     ░███  ░███ ░███ ░███ ░███    ░███ ░░░  ░███   ███████ ░███ ░░░  ░███ ░███  ░███  ░███ ░███ ░███████ 
+* ░░███     ███ ░███ ░███ ░███░░░   ███░░███   ░███ ███ ░███  ░███ ░███ ░███ ░███    ░███      ░███  ███░░███ ░███  ███ ░███ ░███  ░███  ░███ ░███ ░███░░░  
+*  ░░█████████  ████ █████░░██████ ░░████████  ░░█████  █████ ████ █████░░███████    █████     █████░░████████░░██████  ████ █████ █████ ████ █████░░██████ 
+*   ░░░░░░░░░  ░░░░ ░░░░░  ░░░░░░   ░░░░░░░░    ░░░░░  ░░░░░ ░░░░ ░░░░░  ░░░░░███   ░░░░░     ░░░░░  ░░░░░░░░  ░░░░░░  ░░░░ ░░░░░ ░░░░░ ░░░░ ░░░░░  ░░░░░░  
+*                                                                        ███ ░███                                                                           
+*                                                                       ░░██████                                                                            
+*                                                                        ░░░░░░                                                                             
+*/
+
+/*
+   █████████                                          ███          
+  ███░░░░░███                                        ░░░           
+ ███     ░░░   ██████  ████████    ██████  ████████  ████   ██████ 
+░███          ███░░███░░███░░███  ███░░███░░███░░███░░███  ███░░███
+░███    █████░███████  ░███ ░███ ░███████  ░███ ░░░  ░███ ░███ ░░░ 
+░░███  ░░███ ░███░░░   ░███ ░███ ░███░░░   ░███      ░███ ░███  ███
+ ░░█████████ ░░██████  ████ █████░░██████  █████     █████░░██████ 
+  ░░░░░░░░░   ░░░░░░  ░░░░ ░░░░░  ░░░░░░  ░░░░░     ░░░░░  ░░░░░░  
+                                                                  
+*/
+.empty {
+  filter: grayscale(100%);
+
+  &::before {
+    background-color: rgba(241, 240, 240, 0.25);
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.whiteblock {
+  border-radius: 10px;
+}
+
+.player-infos {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  margin: 5px;
+  justify-content: flex-start;
+
+  // .icons {
+  //     background: url("img/players_icons.png");
+  //     content: "";
+  //     display: block;
+  //     background-size: cover;
+  //     width: 30px;
+  //     height: 40px;
+  //     margin-right: 5px;
+
+  //     $nb_icons: 4;
+  //     @for $i from 1 through $nb_icons {
+  //         &[data-player_no='#{$i}']{
+  //             background-position-x: calc(($i - 1) * 100% / ($nb_icons - 1));
+  //         }
+  //       }
+  // }
+
+  .counter {
+    display: inline-block;
+    text-align: center;
+    font-size: 1.5em;
+    font-family: $main-font;
+    margin-right: 0.5em;
+
+    &:before {
+      border-radius: 2px;
+      content: "";
+      display: block;
+      background-size: cover;
+      float: left;
+    }
+
+    &.cave-counter:before {
+      height: 30px;
+      width: calc(30px / $card-ratio);
+      background-image: url("img/cave.jpg");
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    &.cards-counter:before {
+      background-image: url("img/vCards.jpg");
+
+      background-size: 700%;
+      background-position-y: 100%;
+      background-position-x: 100%;
+      width: calc(30px * $card-ratio);
+      height: 30px;
+    }
+  }
+}
+
+.rewards-counter:after {
+  background: url(img/icons.png);
+  content: "";
+  display: inline-block;
+  background-size: cover;
+  width: 20px;
+  height: 20px;
+  top: 4px;
+  position: relative;
+  background-position: 100%;
+}
+
+.deckinfo {
+  background: rgba(255, 255, 255, 0.678);
+  border-radius: 25%;
+  height: calc(min(var(--card-width), var(--max-card-width)) / 4);
+  min-width: calc(min(var(--card-width), var(--max-card-width)) / 4);
+  line-height: calc(min(var(--card-width), var(--max-card-width)) / 4);
+  color: rgb(80, 57, 9);
+  font-weight: 600;
+  overflow: visible;
+  padding: 2px 2px 2px 2px;
+  position: absolute;
+  text-align: center;
+  z-index: 99;
+}
+
+%shadow {
+  // -webkit-filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.4));
+  // filter: drop-shadow(5px 5px 5px rgba(0, 0, 0, 0.4));
+  -moz-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.4);
+  -o-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.4);
+  filter: progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=134, Strength=30);
+}
+
+%rounded_corner {
+  border-radius: 5%;
+}
+
+//animating
+// .prepared_to_animate {
+//     transition: all 0s;
+// }
+
+.animate-on-transforms {
+  transition: all 500ms ease-in-out;
+}
+
+//flipping
+
+.flip-container {
+  background-color: transparent;
+  width: var(--card-width);
+  height: calc(var(--card-width) / $card-ratio);
+  perspective: 1000px;
+
+  .flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.4s;
+    transform: rotateY(0deg);
+
+    .flip-front,
+    .flip-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      /* Safari */
+      backface-visibility: hidden;
+      transform: rotateY(0deg);
+    }
+
+    .flip-back {
+      transform: rotateY(180deg);
+    }
+  }
+
+  &.flipped .flip-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+//   █████████    █████████   ███████████ ██████████    ██████   ██████    ███████    ██████████   ██████████
+//  ███░░░░░███  ███░░░░░███ ░░███░░░░░░█░░███░░░░░█   ░░██████ ██████   ███░░░░░███ ░░███░░░░███ ░░███░░░░░█
+// ░███    ░░░  ░███    ░███  ░███   █ ░  ░███  █ ░     ░███░█████░███  ███     ░░███ ░███   ░░███ ░███  █ ░
+// ░░█████████  ░███████████  ░███████    ░██████       ░███░░███ ░███ ░███      ░███ ░███    ░███ ░██████
+//  ░░░░░░░░███ ░███░░░░░███  ░███░░░█    ░███░░█       ░███ ░░░  ░███ ░███      ░███ ░███    ░███ ░███░░█
+//  ███    ░███ ░███    ░███  ░███  ░     ░███ ░   █    ░███      ░███ ░░███     ███  ░███    ███  ░███ ░   █
+// ░░█████████  █████   █████ █████       ██████████    █████     █████ ░░░███████░   ██████████   ██████████
+//  ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░       ░░░░░░░░░░    ░░░░░     ░░░░░    ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░
+//
+//
+//
+
+.help-marker {
+  position: absolute;
+  top: 13%;
+  right: 2%;
+  width: calc(min(var(--card-in-hand-width), var(--max-card-width)) / 6);
+  height: calc(min(var(--card-in-hand-width), var(--max-card-width)) / 6);
+  z-index: 900;
+  border: 1px solid black;
+  border-radius: 50%;
+  cursor: help;
+  background: rgba(255, 255, 255, 0.877);
+  text-align: center;
+  font-size: large;
+  font-weight: 700;
+
+  svg {
+    width: calc(min(var(--card-in-hand-width), var(--max-card-width)) / 6);
+    height: calc(min(var(--card-in-hand-width), var(--max-card-width)) / 6);
+  }
+}
+
+.onTop,
+.onBottom {
+  & .help-marker {
+    top: 26%;
+  }
+}
+
+.onLeft,
+.onRight {
+  & .help-marker {
+    right: 4%;
+  }
+}
+
+#ebd-body:not(.help-mode) {
+  .help-marker {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+//PANEL TO SAFE MODE
+#player_board_config {
+  position: relative;
+  border-image: none;
+}
+
+.player_config_row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px 0px;
+  border-bottom: 1px solid black;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .slider {
+    margin-top: 5px;
+  }
+}
+
+#help-mode-switch {
+  .checkbox {
+    display: none;
+  }
+
+  .label {
+    background-color: #2c3037;
+    border-radius: 50px;
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    height: 26px;
+    width: 50px;
+  }
+
+  .label .ball {
+    background-color: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    height: 22px;
+    width: 22px;
+    transform: translateX(0px);
+    transition: transform 0.2s linear, color 0.7s linear;
+  }
+
+  .checkbox:checked + .label .ball {
+    transform: translateX(24px);
+  }
+
+  svg {
+    width: 27px;
+  }
+}
+
+#show-settings {
+  height: 40px;
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    color: grey;
+  }
+
+  cursor: pointer;
+
+  svg {
+    width: auto;
+    height: 40px;
+  }
+}
+
+#show-settings {
+  .fa-primary {
+    transform-origin: 216px 255px;
+    transition: transform 1s;
+  }
+
+  &:hover .fa-primary {
+    transform: rotate(180deg);
+  }
+}
+
+#popin_showSettings_underlay {
+  background-color: black !important;
+  opacity: 0.6;
+}
+
+// #popin_showSettings_wrapper {
+//   position: fixed !important;
+// }
+
+#popin_showSettings {
+  background-color: #ebd5bd;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px black;
+  position: relative;
+
+  .rauha_popin_closeicon {
+    background-color: #a47a77;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -18px;
+    right: -18px;
+    font-size: 90%;
+    color: white !important;
+    border: 1px solid #dfbda8;
+
+    &:hover {
+      text-decoration: none;
+      color: #ccc !important;
+      transform: scale(1.1);
+    }
+
+    i {
+      margin-top: -2px;
+    }
+  }
+
+  h2 {
+    font-family: "Oranienbaum";
+    text-align: center;
+    font-size: 23px;
+    margin: 0px;
+    background: #b79570;
+    border-radius: 8px 8px 0px 0px;
+    padding: 7px 0px;
+    border-bottom: 1px solid #734f2a;
+  }
+}
+
+/*
+   * Controls in the top bar
+   */
+#settings-controls-container {
+  position: relative;
+  text-align: center;
+  width: 550px;
+
+  #settings-controls-header {
+    display: flex;
+    align-items: stretch;
+
+    div {
+      border-right: 1px solid black;
+      border-bottom: 1px solid black;
+      padding: 5px 8px;
+      background: #cca172;
+      flex-grow: 1;
+      cursor: pointer;
+
+      &:last-child {
+        border-right: none;
+      }
+
+      &.open {
+        background: none;
+        border-bottom: none;
+      }
+    }
+  }
+
+  #settings-controls-wrapper {
+    .settings-section {
+      display: none;
+
+      &.open {
+        display: block;
+      }
+    }
+  }
+
+  .row-data {
+    border: none;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid gray;
+
+    .row-label {
+      width: 100%;
+      float: none;
+      color: black;
+      padding-bottom: 0px;
+      text-overflow: initial;
+      white-space: normal;
+      padding: 2px 4px 0px;
+    }
+
+    .row-value {
+      width: 85%;
+      margin: 0;
+
+      &.slider {
+        width: calc(85% - 40px);
+        padding-right: 20px;
+        padding-left: 20px;
+        box-sizing: content-box;
+      }
+    }
+
+    &.row-data-switch .row-value {
+      padding: 6px 0px;
+    }
+
+    label.switch {
+      display: block;
+
+      input {
+        display: none;
+      }
+
+      .slider {
+        margin: auto;
+        height: 27px;
+        width: 55px;
+        position: relative;
+        background-color: #a6a6a6;
+        cursor: pointer;
+        -webkit-transition: 0.4s;
+        transition: 0.4s;
+        border-radius: 34px;
+
+        &::before {
+          content: "";
+          position: absolute;
+          background-color: #fff;
+          bottom: 4px;
+          height: 19px;
+          left: 4px;
+          width: 19px;
+          border-radius: 50%;
+          transition: 0.4s;
+        }
+      }
+
+      input:checked + .slider {
+        background-color: #2196f3;
+
+        &::before {
+          left: 30px;
+        }
+      }
+    }
+  }
+}
+//                                         ████
+//                                        ░░███
+//  ██████  █████ █████  ██████  ████████  ░███   ██████   █████ ████
+// ███░░███░░███ ░░███  ███░░███░░███░░███ ░███  ░░░░░███ ░░███ ░███
+//░███ ░███ ░███  ░███ ░███████  ░███ ░░░  ░███   ███████  ░███ ░███
+//░███ ░███ ░░███ ███  ░███░░░   ░███      ░███  ███░░███  ░███ ░███
+//░░██████   ░░█████   ░░██████  █████     █████░░████████ ░░███████
+// ░░░░░░     ░░░░░     ░░░░░░  ░░░░░     ░░░░░  ░░░░░░░░   ░░░░░███
+//                                                          ███ ░███
+//                                                         ░░██████
+//                                                          ░░░░░░
+
+#card-overlay {
+  opacity: 0;
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  top: 0;
+  left: 0;
+  z-index: 4000;
+  pointer-events: none;
+  transition: opacity 600ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & .card {
+    width: calc(var(--card-width) * 1.5);
+    height: calc(var(--card-width) / $card-ratio * 1.5);
+  }
+}
+
+#card-overlay.active {
+  opacity: 1;
+  pointer-events: none;
+}
